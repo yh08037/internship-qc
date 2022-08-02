@@ -1,5 +1,8 @@
 #include <string>
 #include "QASMparser.h"
+#include "graph.h"
+#include "mainmapping.h"
+#include "write_qasm.h"
 
 
 int main(int argc, char** argv) {
@@ -17,8 +20,8 @@ int main(int argc, char** argv) {
     int nqubits = parser.getNqubits();
     int ngates = parser.getNgates();
     auto layers = parser.getLayers();
-
-    auto printGate = [](QASMparser::gate gate) {
+    
+    /* auto printGate = [](QASMparser::gate gate) {
         std::cout << gate.type << " ";
         if (gate.control != -1)
             std::cout << "q[" << gate.control << "],";
@@ -30,7 +33,30 @@ int main(int argc, char** argv) {
             printGate(gate);
         }
         std::cout << "----------------------------------------" << std::endl;
-    }
+    } */
+
+
+    // create coupling graph
+    Graph graph("../graph/graph2.txt");
+	graph.getgraph();
+
+    // test
+	graph.ViewNeighbors(4);
+	graph.judge_neighbor(3, 5);
+	
+    // initial mapping - random
+    graph.COMrand(nqubits);
+
+
+    // main mapping
+    Main main(parser, graph);
+    main.print_main();
+
+    // create output
+    // write_qasm(new_layers, '../output/asdf.qasm');
+
+    write_qasm output(main, fileName, nqubits);
+    cout << "finish!" << endl;
 
     return 0;
 }
