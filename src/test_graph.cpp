@@ -51,14 +51,14 @@ int main() {
 		int index = 0;
 		for (int j = 0; j < lqubit; j++) {
 			if (graph->COM[j] == q1)
-				index == j;
+				index = j;
 		}
 
 		int obj;
 		if (graph->judge_neighbor(q1, q2) == false) {
 			int k = 0;
 			while (k < lqubit) {
-				if (graph->arr[index][k] == 1) {
+				if (graph->logical_arr[index][k] == 1) {
 					obj = k;
 					break;
 				}

@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 class write_qasm {
 public:
     void mkdir(const string &path);
-    write_qasm(Main main, string FileName, int nqubits);
+    write_qasm(Main &main, string &FileName, int nqubits);
 };
 
 #endif // WRITE_QASM_Htp

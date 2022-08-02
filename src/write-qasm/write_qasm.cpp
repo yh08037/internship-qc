@@ -9,7 +9,7 @@ void write_qasm::mkdir(const string &path) {
     fs::create_directories(p);
 }
 
-write_qasm::write_qasm(Main main, string fileName, int nqubits) {
+write_qasm::write_qasm(Main &main, string &fileName, int nqubits) {
     mkdir("../output");
     
     string FileName = fileName.substr(35);

@@ -1,6 +1,6 @@
 #include "mainmapping.h"
 
-Main::Main(QASMparser parser, Graph graph) {
+Main::Main(QASMparser &parser, Graph &graph) {
 
     int i = 0;
     int nqubit = parser.getNqubits();
@@ -18,10 +18,10 @@ Main::Main(QASMparser parser, Graph graph) {
                 int qt = gate.target;
                                 
                 int obj;
-                if (graph.arr[graph.COM[qc]][graph.COM[qt]] == 0) {
-                    int qobj;
+                if (graph.physical_arr[graph.COM[qc]][graph.COM[qt]] == 0) {
+                    int qobj = -1;
 			        for (int k = 0; k < nqubit; k++) {
-			            if (graph.arr[graph.COM[qc]][graph.COM[k]] == 1) {
+			            if (graph.physical_arr[graph.COM[qc]][graph.COM[k]] == 1) {
                             qobj = k;
                             obj = graph.COM[qobj];
                             /* for (int j = 0; j < nqubit; j++) {
@@ -34,6 +34,18 @@ Main::Main(QASMparser parser, Graph graph) {
                             break;
                         }       
 			        }
+                    if (qobj == -1) {
+                        for (int k = 0; k < nqubit; k++) {
+                            if (graph.physical_arr[graph.COM[qt]][graph.COM[k]] == 1) {
+                                qobj = k;
+                                obj = graph.COM[qobj];
+                                break;
+                            }       
+                        }
+                    }
+                    if (qobj == -1) {
+                        cout << "?????" << endl;
+                    }
                     //add SWP
                     /* int qobj;
                     for (int j = 0; j < nqubit; j++) {
@@ -42,6 +54,7 @@ Main::Main(QASMparser parser, Graph graph) {
                             break;
                         }
                     } */
+
                     addSWP(newlayer, qt, qobj);
                     // update logical qubit - physical qubit mapping 
                     int qq = graph.COM[qt];

@@ -34,19 +34,19 @@ Graph::Graph(string path) {
 
 	int n1, n2;
 
-	ary = vector<vector<int>>(qubit_number, vector<int>(qubit_number, 0));
+	physical_arr = vector<vector<int>>(qubit_number, vector<int>(qubit_number, 0));
 
 	for (int i = 0; i < line_number; i++) {
 		stringstream ss(v[i]);
 		ss >> n1 >> n2;
-		ary[n1][n2] = 1;
-		ary[n2][n1] = 1;
+		physical_arr[n1][n2] = 1;
+		physical_arr[n2][n1] = 1;
 	}
 
 	for (int i = 0; i < qubit_number; i++) {
 		for (int k = 0; k < qubit_number; k++) {
-			if (ary[i][k] != 1)
-				ary[i][k] = 0;
+			if (physical_arr[i][k] != 1)
+				physical_arr[i][k] = 0;
 		}
 	}
 
@@ -56,8 +56,8 @@ Graph::Graph(string path) {
 
 Graph::~Graph(void) {
 	//for (int i = 0; i < qubit_number; i++)
-	//	delete[] ary[i];
-	//delete[] ary;
+	//	delete[] physical_arr[i];
+	//delete[] physical_arr;
 }
 
 void Graph::getgraph() {
@@ -65,7 +65,7 @@ void Graph::getgraph() {
 		cout << "Qubit index: " << i << endl;
 		cout << "Adjacent qubit: ";
 		for (int j = 0; j < qubit_number; j++) {
-			if (ary[i][j] == true)
+			if (physical_arr[i][j] == true)
 				cout << j << ", ";
 		}
 		cout << endl << endl;
@@ -74,7 +74,7 @@ void Graph::getgraph() {
 
 bool Graph::judge_neighbor(int node1, int node2) {
 	cout << "node" << node1 << " & node" << node2 << endl;
-	if (ary[node1][node2]) {
+	if (physical_arr[node1][node2]) {
 		cout << "connected!" << endl << endl;
 		return true;
 	}
@@ -89,7 +89,7 @@ void Graph::ViewNeighbors(int node) {
 	cout << "node: " << node << endl;
 	cout << "connected node: ";
 	for (int i = 0; i < qubit_number; i++) {
-		if (ary[node][i]) {
+		if (physical_arr[node][i]) {
 			//neighbor.push_back(i);
 			cout << i << ", ";
 		}
@@ -117,7 +117,7 @@ void Graph::COMrand(int lqubit) {
 				i--;
 			else
 				for (int k = 0; k < i; k++) {
-					if (ary[tempt][COM[k]] == 1)
+					if (physical_arr[tempt][COM[k]] == 1)
 						connection += 1;
 				}
 			if (connection == 0)
@@ -131,27 +131,27 @@ void Graph::COMrand(int lqubit) {
 		cout << COM[i] << ", ";
 	cout << endl << endl;
 
-	arr = vector<vector<int>>(lqubit, vector<int>(lqubit, 0));
+	logical_arr = vector<vector<int>>(lqubit, vector<int>(lqubit, 0));
 
 	for (int i = 0; i < lqubit; i++) {
 		for (int j = 0; j < lqubit; j++) {
-			if (ary[COM[i]][COM[j]] == 1) {
-				arr[i][j] = 1;
-				arr[j][i] = 1;
+			if (physical_arr[COM[i]][COM[j]] == 1) {
+				logical_arr[i][j] = 1;
+				logical_arr[j][i] = 1;
 			}
 		}
 	}
 
 	for (int i = 0; i < qubit_number; i++) {
 		for (int k = 0; k < qubit_number; k++) {
-			if (ary[i][k] != 1)
-				ary[i][k] = 0;
+			if (physical_arr[i][k] != 1)
+				physical_arr[i][k] = 0;
 		}
 	}
 
 	for (int i = 0; i < lqubit; i++) {
 		for (int k = 0; k < lqubit; k++) {
-			cout << arr[i][k] << " ";
+			cout << logical_arr[i][k] << " ";
 		}
 		cout << endl;
 	}
