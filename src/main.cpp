@@ -34,15 +34,14 @@ int main(int argc, char** argv) {
     //graph.COMrand(nqubits);
 
     // main mapping
-    int fail;
-    Main main(parser, graph, fail);
-    if(main.failure == true) {
+    Main main(parser, graph);
+    if(main.failure) {
+        cout << "fail!" << endl;
+    } else {
         main.print_main();
         write_qasm output(main, fileName, nqubits);
         cout << "finish!" << endl;
     }
-    else cout << "fail!" << endl;
-
     // create output
     // write_qasm(new_layers, '../output/asdf.qasm');
 

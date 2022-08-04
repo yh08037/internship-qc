@@ -50,42 +50,13 @@ Graph::Graph(string path) {
 		}
 	}
 
-	#define INF 999
-
-	for (const auto &row : physical_arr) {
-		distance.emplace_back(row);
-	}
-
-	for (int i = 0; i < qubit_number; i++) {
-		for (int j = 0; j < qubit_number; j++) {
-			if (distance[i][j] == 0) {
-				if (i == j) {
-					distance[i][j] = 0;
-				} else {
-					distance[i][j] = INF;
-				}
-			}
-		}
-	}
-
-	// Adding vertices individually
-	for (int k = 0; k < qubit_number; k++) {
-		for (int i = 0; i < qubit_number; i++) {
-			for (int j = 0; j < qubit_number; j++) {
-				if (distance[i][k] + distance[k][j] < distance[i][j])
-				distance[i][j] = distance[i][k] + distance[k][j];
-			}
-		}
-	}
-	printMatrix(distance);
-
 	file.close();
 }
 
 void Graph::printMatrix(vector<vector<int>> &matrix) {
 	for (int i = 0; i < qubit_number; i++) {
 		for (int j = 0; j < qubit_number; j++) {
-		if (matrix[i][j] == INF)
+		if (matrix[i][j] == 999)
 			printf("%4s", "INF");
 		else
 			printf("%4d", matrix[i][j]);
@@ -203,6 +174,9 @@ void Graph::COMrand(QASMparser &parser, int lqubit) {
 		cout << COM[i] << ", ";
 	cout << endl << endl;
 
+
+	// ----------------------- print logical array -----------------------
+
 	logical_arr = vector<vector<int>>(lqubit, vector<int>(lqubit, 0));
 
 	for (int i = 0; i < lqubit; i++) {
@@ -228,6 +202,56 @@ void Graph::COMrand(QASMparser &parser, int lqubit) {
 		cout << endl;
 	}
 	cout << endl;
+
+
+	// ----------------------- calculate distance -----------------------
+	for (const auto &row : physical_arr) {
+		distance.emplace_back(row);
+	}
+
+	for (int i = 0; i < qubit_number; i++) {
+		// check Qi is included in initial mapping
+		bool is_i_mapped = false;
+		for (int q = 0; q < nqubit; q++) {
+			if (i == COM[q]) {
+				is_i_mapped = true;
+			}
+		}
+
+		for (int j = 0; j < qubit_number; j++) {
+			// check Qj is included in initial mapping
+			bool is_j_mapped = false;
+			for (int q = 0; q < nqubit; q++) {
+				if (j == COM[q]) {
+					is_j_mapped = true;
+				}
+			}
+
+			// set distance
+			if (is_i_mapped && is_j_mapped) {
+				if (distance[i][j] == 0) {
+					if (i == j) {
+						distance[i][j] = 0;
+					} else {
+						distance[i][j] = 999;
+					}
+				}
+			} else {
+				distance[i][j] = 999;
+			}
+		}
+	}
+
+	// Adding vertices individually
+	for (int k = 0; k < qubit_number; k++) {
+		for (int i = 0; i < qubit_number; i++) {
+			for (int j = 0; j < qubit_number; j++) {
+				if (distance[i][k] + distance[k][j] < distance[i][j])
+				distance[i][j] = distance[i][k] + distance[k][j];
+			}
+		}
+	}
+	printMatrix(distance);
 }
 
 

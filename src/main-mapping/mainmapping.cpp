@@ -182,9 +182,9 @@
 } */
 
 
-Main::Main(QASMparser &parser, Graph &graph, int fail) {
+Main::Main(QASMparser &parser, Graph &graph) {
 
-    fail = 0;
+    failure = false;
     int nqubit = parser.getNqubits();
     auto layers = parser.getLayers();
 
@@ -202,28 +202,45 @@ Main::Main(QASMparser &parser, Graph &graph, int fail) {
                 //int obj;
                 if (graph.physical_arr[graph.COM[qc]][graph.COM[qt]] == 0) {
                     //int qobj = -1;
-                    int min_i = 999;
-                    int log_min = -1;
+                    int min_dist = 999;
+                    int q_min_dist = -1;
                     do {
-                        min_i = 999;
-                        log_min = -1;
+                        // cout << "qc: q" << qc << " Q" << graph.COM[qc] << " ";
+                        // cout << "qt: q" << qt << " Q" << graph.COM[qt] << endl;
+                        
+                        // cout << "mapping: ";
+                        // for (int i = 0; i < nqubit; i++) {
+                        //     cout << graph.COM[i] << " ";
+                        // }
+                        // cout << endl;
+
+                        min_dist = 999;
+                        q_min_dist = -1;
+                        
+                        // cout << "candidate: ";
                         for (int k = 0; k < nqubit; k++) {
                             if (graph.distance[graph.COM[qt]][graph.COM[k]] == 1) {
-                                if (min_i > graph.distance[graph.COM[qc]][graph.COM[k]]){
-                                    min_i = graph.distance[graph.COM[qc]][graph.COM[k]];
-                                    log_min = k;
+                                // cout << "(q" << k << " Q" << graph.COM[k] << ") ";
+                                if (min_dist > graph.distance[graph.COM[qc]][graph.COM[k]]){
+                                    min_dist = graph.distance[graph.COM[qc]][graph.COM[k]];
+                                    q_min_dist = k;
                                 }
                             }
                         }
-                        int qq = graph.COM[qt];
-                        graph.COM[qt] = graph.COM[log_min];
-                        graph.COM[log_min] = qq;
-                        addSWP(newlayer, qt, log_min);
-                        cout << "SWAP " << qt << " " << log_min << endl;
-                    } while(min_i > 1);
-			        
+                        // cout << endl;
 
-                    
+                        // cout << "SWAP: q" << qt << " Q" << graph.COM[qt];
+                        // cout << " <-> q" << q_min_dist  << " Q" << graph.COM[q_min_dist] << endl;
+                        // cout << "min_dist: " << min_dist << " ";
+
+                        int qq = graph.COM[qt];
+                        graph.COM[qt] = graph.COM[q_min_dist];
+                        graph.COM[q_min_dist] = qq;
+                        addSWP(newlayer, qt, q_min_dist);
+
+                        // cout << "actual: " << graph.distance[graph.COM[qc]][graph.COM[qt]] << endl;
+                    } while(min_dist > 1);
+			        
 
                     /* int mobj;
                     int mqobj;
@@ -286,9 +303,6 @@ Main::Main(QASMparser &parser, Graph &graph, int fail) {
             //newlayer에 gate들 추가
             newlayer.push_back(gate);
         }
-        if (fail != 0) {
-            failure = false;
-        }   
     }
 }
 
