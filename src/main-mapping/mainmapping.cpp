@@ -1,8 +1,9 @@
 #include "mainmapping.h"
 
-/* Main::Main(QASMparser &parser, Graph &graph, int fail) {
+Main::Main(QASMparser &parser, Graph &graph) {
+    vector<int> actual;
+    //actual.push_back(-1);
 
-    fail = 0;
     int nqubit = parser.getNqubits();
     auto layers = parser.getLayers();
 
@@ -16,85 +17,48 @@
 
                 int qc = layers[layer_iter][gate_iter].control;
                 int qt = layers[layer_iter][gate_iter].target;
-                                
-                int obj;
-                int mobj;
-                int mqobj;
+                  
                 if (graph.physical_arr[graph.COM[qc]][graph.COM[qt]] == 0) {
-                    int qobj = -1;
                     int k = 0;
-                    bool FIRST;
-                    int middle = -1;
+                    int min_dist = 999;
+                    int q_min_dist = -1;
                     
                     while (k < nqubit) {
-                        for (k; k < nqubit; k++) {
-                            if (graph.physical_arr[graph.COM[qc]][graph.COM[k]] == 1 && graph.physical_arr[graph.COM[qt]][graph.COM[k]] == 1) {
-                                qobj = k;
-                                obj = graph.COM[qobj];
-                                cout << "t: " << graph.COM[qt] << ", obj: " << obj << endl;
-                                break;
-                            }     
-                        }
-                    
-                        if (qobj != -1) {
-                            //add SWP
-                            FIRST = true;
-                            // update logical qubit - physical qubit mapping 
-                            int qq = graph.COM[qt];
-                            graph.COM[qt] = obj;
-                            graph.COM[qobj] = qq;
-                            cout << "first" << endl;
-                            for (int i = 0; i < nqubit; i++)
-                                cout << graph.COM[i] << ", ";
-                            cout << endl << endl;
-                        }
+                        do {
+                            min_dist = 999;
+                            q_min_dist = -1;
+                            fill(actual.begin(), actual.end(), -1);
 
-
-                        if (qobj == -1) {
-                            cout << "t: " << graph.COM[qt] << endl;
-                            for (int t = 0; t < nqubit; t++) {
-                                if (graph.physical_arr[graph.COM[qt]][graph.COM[t]] == 1) {
-                                    mqobj = t;
-                                    mobj = graph.COM[mqobj];
-
-                                    cout << "mobj: " << mobj <<", t: " << graph.COM[qt] << endl;
-                                    
-                                    int mqq = graph.COM[qt];
-                                    graph.COM[qt] = mobj;
-                                    graph.COM[mqobj] = mqq;
-
-                                    cout << "middle" << endl;
-                                    for (int i = 0; i < nqubit; i++)
-                                        cout << graph.COM[i] << ", ";
-                                    cout << endl;
-                                
-                                    for (int y = 0; y < nqubit; y++) {
-                                        if (graph.physical_arr[graph.COM[qc]][graph.COM[y]] == 1 && graph.physical_arr[graph.COM[qt]][graph.COM[y]] == 1) {
-                                            qobj = y;
-                                            obj = graph.COM[qobj];
-                                            int qq = graph.COM[qt];
-                                            graph.COM[qt] = obj;
-                                            graph.COM[qobj] = qq;
-                                            for (int i = 0; i < nqubit; i++)
-                                                cout << graph.COM[i] << ", ";
-                                            cout << endl;
-                                            break;
-                                        }       
+                            for (k; k < nqubit; k++) {
+                                if (k == qc)
+                                    continue;
+                                if (graph.distance[graph.COM[qt]][graph.COM[k]] == 1) {
+                                cout << "(q" << k << " Q" << graph.COM[k] << ") ";
+                                    if (min_dist > graph.distance[graph.COM[qc]][graph.COM[k]]) {
+                                        min_dist = graph.distance[graph.COM[qc]][graph.COM[k]];
+                                        q_min_dist = k;
                                     }
                                 }
                             }
-                            middle = 1;
-                        }
-
-                        if (qobj == -1) {
-                            fail = 1;
-                            cout << "?????" << endl;
-                        }
-                        else if (middle == 1) {
-                            for (int i = 0; i < nqubit; i++)
-                                cout << graph.COM[i] << ", ";
                             cout << endl;
-                        }
+
+                            cout << "SWAP: q" << qt << " Q" << graph.COM[qt];
+                            cout << " <-> q" << q_min_dist  << " Q" << graph.COM[q_min_dist] << endl;
+                            cout << "min_dist: " << min_dist << " ";
+
+                            int qq = graph.COM[qt];
+                            graph.COM[qt] = graph.COM[q_min_dist];
+                            graph.COM[q_min_dist] = qq;
+
+                            actual.push_back(q_min_dist);
+                            //addSWP(newlayer, qt, q_min_dist);
+
+                            cout << "actual: " << graph.distance[graph.COM[qc]][graph.COM[qt]] << endl;
+                        } while(min_dist > 1);
+
+                        k = q_min_dist;
+
+                        cout << "escape" << endl;
 
                         int next_gate = gate_iter + 1;
                         int success = -1;
@@ -161,30 +125,20 @@
                             break;
                         }
                     }
-                    if (FIRST == true) {
-                        addSWP(newlayer, qt, qobj);
+                    for (auto nswp : actual) {
+                        addSWP(newlayer, qt, nswp);
                     }
-                    else if (middle == 1) {
-                        addSWP(newlayer, qt, mqobj);
-                        addSWP(newlayer, qt, qobj);
-                    }
-
                 } 
             }
-            
             //newlayer에 gate들 추가
             newlayer.push_back(layers[layer_iter][gate_iter]);
         }
-        if (fail != 0) {
-            failure = false;
-        }
     }
-} */
+}
 
 
-Main::Main(QASMparser &parser, Graph &graph) {
+/* Main::Main(QASMparser &parser, Graph &graph) {
 
-    failure = false;
     int nqubit = parser.getNqubits();
     auto layers = parser.getLayers();
 
@@ -219,6 +173,8 @@ Main::Main(QASMparser &parser, Graph &graph) {
                         
                         // cout << "candidate: ";
                         for (int k = 0; k < nqubit; k++) {
+                            if (k == qc)
+                                    continue;
                             if (graph.distance[graph.COM[qt]][graph.COM[k]] == 1) {
                                 // cout << "(q" << k << " Q" << graph.COM[k] << ") ";
                                 if (min_dist > graph.distance[graph.COM[qc]][graph.COM[k]]){
@@ -240,71 +196,13 @@ Main::Main(QASMparser &parser, Graph &graph) {
 
                         // cout << "actual: " << graph.distance[graph.COM[qc]][graph.COM[qt]] << endl;
                     } while(min_dist > 1);
-			        
-
-                    /* int mobj;
-                    int mqobj;
-                    int middle = -1;
-
-                    if (qobj == -1) {
-                        cout << "t: " << graph.COM[qt] << endl;
-                        for (int t = 0; t < nqubit; t++) {
-                            if (graph.physical_arr[graph.COM[qt]][graph.COM[t]] == 1) {
-                                mqobj = t;
-                                mobj = graph.COM[mqobj];
-
-                                cout << "mobj: " << mobj <<", t: " << graph.COM[qt] << endl;
-                                
-                                int mqq = graph.COM[qt];
-                                graph.COM[qt] = mobj;
-                                graph.COM[mqobj] = mqq;
-
-                                cout << "middle" << endl;
-                                for (int i = 0; i < nqubit; i++)
-                                    cout << graph.COM[i] << ", ";
-                                cout << endl;
-                              
-                                for (int y = 0; y < nqubit; y++) {
-                                    if (graph.physical_arr[graph.COM[qc]][graph.COM[y]] == 1 && graph.physical_arr[graph.COM[qt]][graph.COM[y]] == 1) {
-                                        qobj = y;
-                                        obj = graph.COM[qobj];
-                                        int qq = graph.COM[qt];
-                                        graph.COM[qt] = obj;
-                                        graph.COM[qobj] = qq;
-                                        for (int i = 0; i < nqubit; i++)
-                                            cout << graph.COM[i] << ", ";
-                                        cout << endl;
-                                        break;
-                                    }       
-                                }
-                            }
-                        }
-                        middle = 1;
-                    }
-
-                    if (qobj == -1) {
-                        fail = 1;
-                        cout << "?????" << endl;
-                    }
-
-                    else if (middle == 1) {
-                        //add SWP
-                        addSWP(newlayer, qt, mqobj);
-                        addSWP(newlayer, qt, qobj);
-                        // update logical qubit - physical qubit mapping 
-                    
-
-                        for (int i = 0; i < nqubit; i++)
-		                    cout << graph.COM[i] << ", ";
-                        cout << endl;
-                    } */
                 }   
             }
             //newlayer에 gate들 추가
             newlayer.push_back(gate);
         }
     }
-}
+} */
 
 
 void Main::print_main() {

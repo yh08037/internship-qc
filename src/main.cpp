@@ -31,17 +31,13 @@ int main(int argc, char** argv) {
 	
     // initial mapping - random
     graph.COMrand(parser, nqubits);
-    //graph.COMrand(nqubits);
 
     // main mapping
     Main main(parser, graph);
-    if(main.failure) {
-        cout << "fail!" << endl;
-    } else {
-        main.print_main();
-        write_qasm output(main, fileName, nqubits);
-        cout << "finish!" << endl;
-    }
+    main.print_main();
+    write_qasm output(main, fileName, nqubits);
+    cout << "finish!" << endl;
+    
     // create output
     // write_qasm(new_layers, '../output/asdf.qasm');
 

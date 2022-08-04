@@ -15,7 +15,6 @@ private:
 //    QASMparser parser;
 public:
 //    void main_mapping(QASMparser parser, Graph graph, vector<vector<QASMparser::gate> > layers);
-    bool failure;
     vector<vector<QASMparser::gate> > newLayers;
     Main(QASMparser &parser, Graph &graph);
     void print_main();

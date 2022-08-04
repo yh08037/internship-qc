@@ -255,7 +255,7 @@ void Graph::COMrand(QASMparser &parser, int lqubit) {
 }
 
 
-/* void Graph::COMrand(int lqubit) {
+/* void Graph::COMrand(QASMparser &parser, int lqubit) {
 
 	random_device rd;
 	mt19937 gen(rd());
@@ -264,6 +264,9 @@ void Graph::COMrand(QASMparser &parser, int lqubit) {
 	COM = vector<int>(lqubit);
 	int tempt = 0;
 	int connection;
+
+	int nqubit = parser.getNqubits();
+    auto layers = parser.getLayers();
 
 	for (int i = 0; i < lqubit; i++) {
 		COM[i] = dis(gen);
@@ -314,4 +317,54 @@ void Graph::COMrand(QASMparser &parser, int lqubit) {
 		cout << endl;
 	}
 	cout << endl;
+
+	// ----------------------- calculate distance -----------------------
+
+	for (const auto &row : physical_arr) {
+		distance.emplace_back(row);
+	}
+
+	for (int i = 0; i < qubit_number; i++) {
+		// check Qi is included in initial mapping
+		bool is_i_mapped = false;
+		for (int q = 0; q < nqubit; q++) {
+			if (i == COM[q]) {
+				is_i_mapped = true;
+			}
+		}
+
+		for (int j = 0; j < qubit_number; j++) {
+			// check Qj is included in initial mapping
+			bool is_j_mapped = false;
+			for (int q = 0; q < nqubit; q++) {
+				if (j == COM[q]) {
+					is_j_mapped = true;
+				}
+			}
+
+			// set distance
+			if (is_i_mapped && is_j_mapped) {
+				if (distance[i][j] == 0) {
+					if (i == j) {
+						distance[i][j] = 0;
+					} else {
+						distance[i][j] = 999;
+					}
+				}
+			} else {
+				distance[i][j] = 999;
+			}
+		}
+	}
+
+	// Adding vertices individually
+	for (int k = 0; k < qubit_number; k++) {
+		for (int i = 0; i < qubit_number; i++) {
+			for (int j = 0; j < qubit_number; j++) {
+				if (distance[i][k] + distance[k][j] < distance[i][j])
+				distance[i][j] = distance[i][k] + distance[k][j];
+			}
+		}
+	}
+	printMatrix(distance);
 } */
