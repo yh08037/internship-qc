@@ -109,7 +109,7 @@ void Graph::ViewNeighbors(int node) {
 	cout << endl << endl;
 }
 
-void Graph::COMrand(QASMparser &parser, int lqubit) {
+/* void Graph::COMrand(QASMparser &parser, int lqubit) {
 
 	random_device rd;
 	mt19937 gen(rd());
@@ -252,10 +252,10 @@ void Graph::COMrand(QASMparser &parser, int lqubit) {
 		}
 	}
 	printMatrix(distance);
-}
+} */
 
 
-/* void Graph::COMrand(QASMparser &parser, int lqubit) {
+void Graph::COMrand(QASMparser &parser, int lqubit) {
 
 	random_device rd;
 	mt19937 gen(rd());
@@ -367,4 +367,4 @@ void Graph::COMrand(QASMparser &parser, int lqubit) {
 		}
 	}
 	printMatrix(distance);
-} */
+}

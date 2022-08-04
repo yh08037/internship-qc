@@ -34,9 +34,25 @@ int main(int argc, char** argv) {
 
     // main mapping
     Main main(parser, graph);
-    main.print_main();
+    //main.print_main();
     write_qasm output(main, fileName, nqubits);
     cout << "finish!" << endl;
+
+    int num_gates = 0;
+    int cx_count = 0;
+
+    for (const auto &layer : main.newLayers) {
+        num_gates += layer.size();
+        for (auto &gate : layer) {
+            if (string(gate.type) == "cx") {
+                cx_count++;
+            }
+        }
+    }
+
+    cout << "num_gates: " << num_gates << endl;
+    cout << "num_cx: " << cx_count << endl;
+
     
     // create output
     // write_qasm(new_layers, '../output/asdf.qasm');
