@@ -20,21 +20,6 @@ int main(int argc, char** argv) {
     int nqubits = parser.getNqubits();
     int ngates = parser.getNgates();
     auto layers = parser.getLayers();
-    
-    /* auto printGate = [](QASMparser::gate gate) {
-        std::cout << gate.type << " ";
-        if (gate.control != -1)
-            std::cout << "q[" << gate.control << "],";
-        std::cout << "q[" << gate.target << "]" << std::endl;
-    };
-
-    for (auto &layer : layers) {
-        for (auto &gate : layer) {
-            printGate(gate);
-        }
-        std::cout << "----------------------------------------" << std::endl;
-    } */
-
 
     // create coupling graph
     Graph graph("../graph/graph2.txt");
@@ -45,18 +30,21 @@ int main(int argc, char** argv) {
 	graph.judge_neighbor(3, 5);
 	
     // initial mapping - random
-    graph.COMrand(nqubits);
-
+    graph.COMrand(parser, nqubits);
+    //graph.COMrand(nqubits);
 
     // main mapping
-    Main main(parser, graph);
-    main.print_main();
+    int fail;
+    Main main(parser, graph, fail);
+    if(main.failure == true) {
+        main.print_main();
+        write_qasm output(main, fileName, nqubits);
+        cout << "finish!" << endl;
+    }
+    else cout << "fail!" << endl;
 
     // create output
     // write_qasm(new_layers, '../output/asdf.qasm');
-
-    write_qasm output(main, fileName, nqubits);
-    cout << "finish!" << endl;
 
     return 0;
 }

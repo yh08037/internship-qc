@@ -7,6 +7,7 @@
 #include <vector>
 #include <sstream>
 #include <random>
+#include "QASMparser.h"
 
 using namespace std;
 
@@ -17,9 +18,12 @@ public:
 	void getgraph();
 	void ViewNeighbors(int node);
 	bool judge_neighbor(int n, int m);
-	void COMrand(int lqubit);
+	void COMrand(QASMparser &parser, int lqubit);
+	void printMatrix(vector<vector<int>> &matrix);
+	//void COMrand(int lqubit);
 	vector<vector<int>> logical_arr; // logical_arr[qi][qj]
 	vector<vector<int>> physical_arr; // physical_arr[Qi][Qj]
+	vector<vector<int>> distance;
 	vector<int> COM;
 private:
 	int qubit_number;

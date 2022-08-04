@@ -50,7 +50,48 @@ Graph::Graph(string path) {
 		}
 	}
 
+	#define INF 999
+
+	for (const auto &row : physical_arr) {
+		distance.emplace_back(row);
+	}
+
+	for (int i = 0; i < qubit_number; i++) {
+		for (int j = 0; j < qubit_number; j++) {
+			if (distance[i][j] == 0) {
+				if (i == j) {
+					distance[i][j] = 0;
+				} else {
+					distance[i][j] = INF;
+				}
+			}
+		}
+	}
+
+	// Adding vertices individually
+	for (int k = 0; k < qubit_number; k++) {
+		for (int i = 0; i < qubit_number; i++) {
+			for (int j = 0; j < qubit_number; j++) {
+				if (distance[i][k] + distance[k][j] < distance[i][j])
+				distance[i][j] = distance[i][k] + distance[k][j];
+			}
+		}
+	}
+	printMatrix(distance);
+
 	file.close();
+}
+
+void Graph::printMatrix(vector<vector<int>> &matrix) {
+	for (int i = 0; i < qubit_number; i++) {
+		for (int j = 0; j < qubit_number; j++) {
+		if (matrix[i][j] == INF)
+			printf("%4s", "INF");
+		else
+			printf("%4d", matrix[i][j]);
+		}
+		printf("\n");
+	}
 }
 
 
@@ -97,7 +138,100 @@ void Graph::ViewNeighbors(int node) {
 	cout << endl << endl;
 }
 
-void Graph::COMrand(int lqubit) {
+void Graph::COMrand(QASMparser &parser, int lqubit) {
+
+	random_device rd;
+	mt19937 gen(rd());
+	uniform_int_distribution<int> dis(0, qubit_number - 1);
+
+	COM = vector<int>(lqubit);
+	int tempt = 0;
+	int connection;
+
+	int nqubit = parser.getNqubits();
+    auto layers = parser.getLayers();
+	int cxconnection = -1;
+	int i;
+
+	while (cxconnection != 1) {
+		for (i = 0; i < lqubit; i++) {
+			COM[i] = dis(gen);
+			tempt = COM[i];
+			connection = 0;
+			for (int j = 0; j < i; j++)
+			{
+				if (COM[j] == tempt)
+					i--;
+				else
+					for (int k = 0; k < i; k++) {
+						if (physical_arr[tempt][COM[k]] == 1)
+							connection += 1;
+					}
+				if (connection == 0)
+					i--;
+			}
+		}
+
+		int brk = i;
+		for (auto &layer : layers) {
+			for (auto &gate : layer) {
+				if (string(gate.type) == "cx") {
+
+					int qc = gate.control;
+					int qt = gate.target;
+					
+					if (physical_arr[COM[qc]][COM[qt]] == 0) { 
+						i--;
+						break;
+					}
+					else {
+						cxconnection = 1;
+						break;
+					}
+				}
+			}
+			if (brk != i) break;
+			if (cxconnection == 1) break;
+		}
+	}
+
+
+
+	cout << endl;
+	cout << "Selected qubits: ";
+	for (int i = 0; i < lqubit; i++)
+		cout << COM[i] << ", ";
+	cout << endl << endl;
+
+	logical_arr = vector<vector<int>>(lqubit, vector<int>(lqubit, 0));
+
+	for (int i = 0; i < lqubit; i++) {
+		for (int j = 0; j < lqubit; j++) {
+			if (physical_arr[COM[i]][COM[j]] == 1) {
+				logical_arr[i][j] = 1;
+				logical_arr[j][i] = 1;
+			}
+		}
+	}
+
+	for (int i = 0; i < qubit_number; i++) {
+		for (int k = 0; k < qubit_number; k++) {
+			if (physical_arr[i][k] != 1)
+				physical_arr[i][k] = 0;
+		}
+	}
+
+	for (int i = 0; i < lqubit; i++) {
+		for (int k = 0; k < lqubit; k++) {
+			cout << logical_arr[i][k] << " ";
+		}
+		cout << endl;
+	}
+	cout << endl;
+}
+
+
+/* void Graph::COMrand(int lqubit) {
 
 	random_device rd;
 	mt19937 gen(rd());
@@ -156,4 +290,4 @@ void Graph::COMrand(int lqubit) {
 		cout << endl;
 	}
 	cout << endl;
-}
+} */
