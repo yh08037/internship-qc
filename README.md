@@ -1,6 +1,10 @@
 # internship-qc
 CSDL 2022 Summer internship - Quantum Circuit Mapping
 
+## Authors
+- Seeun Koo([@eunskoo](https://github.com/eunskoo)) - 2022 CSDL Summer Internship Student
+- Dohun Kim([@yh08037](https://github.com/yh08037)) - CSDL M.S. Student
+
 ## Build
 ```
 [~/internship-qc] mkdir build
